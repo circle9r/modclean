@@ -42,11 +42,10 @@
 		"lodash.uniq": "^4.5.0",
 		"modclean-patterns-default": "latest",
 		"rimraf": "~3.0.2",
-		"subdirs": "^1.0.0",
-		"update-notifier": "~5.1.0"
+		"subdirs": "^1.0.0"
 	},
 	"engines": {
-		"npm": "~8.1.0",
+		"npm": "^8.1.0",
 		"node": "^16.10.0"
 	},
 	"engineStrict": true

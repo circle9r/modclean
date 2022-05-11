@@ -3,7 +3,7 @@
 
 const chalk = require('chalk');
 const program = require('commander');
-const notifier = require('update-notifier');
+// const notifier = require('update-notifier');
 const clui = require('clui');
 const path = require('path');
 const os = require('os');
@@ -13,7 +13,7 @@ const utils = require('./utils');
 const modclean = require('../lib/modclean');
 const ModClean = modclean.ModClean;
 
-notifier({ pkg }).notify();
+// notifier({ pkg }).notify();
 
 function list(val) {
     return val.split(',');
