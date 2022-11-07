@@ -46,9 +46,11 @@ program
     .option('-k, --keep-empty', 'Keep empty directories')
     .parse(process.argv);
 
+const argOptions = program.opts();
+
 class ModClean_CLI {
     constructor() {
-        this.log = utils.initLog(program.verbose);
+        this.log = utils.initLog(argOptions.verbose);
 
         // Display CLI header
         console.log(
@@ -58,7 +60,7 @@ class ModClean_CLI {
         );
 
         // Display "running in test mode" message
-        if(program.test) {
+        if(argOptions.test) {
             console.log(
                 chalk.cyan.bold('RUNNING IN TEST MODE') + "\n" +
                 chalk.gray('When running in test mode, files will not be deleted from the file system.') + "\n"
@@ -66,7 +68,7 @@ class ModClean_CLI {
         }
 
         // Display warning message and confirmation prompt
-        if(!program.run && !program.test) {
+        if(!argOptions.run && !argOptions.test) {
             console.log(
                 chalk.red.bold('WARNING:') + "\n" +
                 chalk.gray(utils.warningMsg) + "\n"
@@ -94,24 +96,24 @@ class ModClean_CLI {
         };
 
         // Disable progress bar in interactive mode
-        if(program.interactive) program.progress = false;
+        if(argOptions.interactive) argOptions.progress = false;
 
         let options = {
-            cwd: program.path || process.cwd(),
-            modulesDir: program.modulesDir || 'node_modules',
-            patterns: program.patterns && program.patterns.length? program.patterns : ['default:safe'],
-            additionalPatterns: program.additionalPatterns || [],
-            ignorePatterns: program.ignore || [],
-            noDirs: !program.dirs,
-            dotFiles: !!program.dotfiles,
-            errorHalt: !!program.errorHalt,
-            removeEmptyDirs: !program.keepEmpty,
-            ignoreCase: !program.caseSensitive,
-            test: !!program.test,
-            followSymlink: !!program.followSymlink,
+            cwd: argOptions.path || process.cwd(),
+            modulesDir: argOptions.modulesDir || 'node_modules',
+            patterns: argOptions.patterns?.length ? argOptions.patterns : ['default:safe'],
+            additionalPatterns: argOptions.additionalPatterns || [],
+            ignorePatterns: argOptions.ignore || [],
+            noDirs: !argOptions.dirs,
+            dotFiles: !!argOptions.dotfiles,
+            errorHalt: !!argOptions.errorHalt,
+            removeEmptyDirs: !argOptions.keepEmpty,
+            ignoreCase: !argOptions.caseSensitive,
+            test: !!argOptions.test,
+            followSymlink: !!argOptions.followSymlink,
             process: function(file, cb) {
                 self.stats.current += 1;
-                if(!program.interactive) return cb(true);
+                if(!argOptions.interactive) return cb(true);
 
                 let name = path.relative(options.cwd, file);
                 if(platform === 'win32') name = name.replace(/\\+/g, '/');
@@ -139,7 +141,7 @@ class ModClean_CLI {
             spinner = new clui.Spinner('Loading...'),
             showProgress = true;
 
-        if(!process.stdout.isTTY || program.interactive || !program.progress || program.verbose) showProgress = false;
+        if(!process.stdout.isTTY || argOptions.interactive || !argOptions.progress || argOptions.verbose) showProgress = false;
 
         function updateProgress(current, total) {
             if(showProgress) {
@@ -150,7 +152,7 @@ class ModClean_CLI {
         }
 
         function showSpinner(msg) {
-            if(!process.stdout.isTTY || program.verbose || !program.progress) {
+            if(!process.stdout.isTTY || argOptions.verbose || !argOptions.progress) {
                 console.log(msg);
             } else {
                 spinner.message(msg);
@@ -179,7 +181,7 @@ class ModClean_CLI {
         inst.on('process', (files) => {
             this.log('event', 'process');
 
-            if(!showProgress && !program.interactive && !program.verbose)
+            if(!showProgress && !argOptions.interactive && !argOptions.verbose)
                 console.log('Deleting files, please wait...');
 
             updateProgress(0, files.length);
@@ -211,7 +213,7 @@ class ModClean_CLI {
 
             if(!dirs.length) return;
 
-            if(!showProgress && !program.interactive && !program.verbose)
+            if(!showProgress && !argOptions.interactive && !argOptions.verbose)
                 console.log('Deleting empty directories, please wait...');
 
             updateProgress(0, dirs.length);
