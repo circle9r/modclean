@@ -7,6 +7,7 @@ export interface Patterns {
 }
 
 export default class ModClean_Utils {
+
 	_inst: any;
 
 	constructor(inst: any) {
@@ -18,12 +19,15 @@ export default class ModClean_Utils {
 	 * @param  {Object} opts Options object for ModClean
 	 * @return {Object}      The compiled and loaded patterns
 	 */
+	// eslint-disable-next-line complexity
 	initPatterns(opts: any): Patterns {
 		let patDefs: string[] = opts.patterns;
 		let patterns: string[] = [];
 		let ignore: string[] = [];
 
-		if (!Array.isArray(patDefs)) patDefs = [patDefs];
+		if (!Array.isArray(patDefs)) {
+			patDefs = [patDefs];
+		}
 
 		for (const patDef of patDefs) {
 			const def = patDef.split(':');
@@ -48,10 +52,12 @@ export default class ModClean_Utils {
 				name = all;
 			}
 
-			let rules = Array.isArray(name) ? name : String(name).split(',');
+			const rules = Array.isArray(name) ? name : String(name).split(',');
 
 			for (const rule of rules) {
-				if (!results.hasOwnProperty(rule)) throw new Error(`Module "${mod}" does not contain rule "${rule}"`);
+				if (!results[rule]) {
+					throw new Error(`Module "${mod}" does not contain rule "${rule}"`);
+				}
 				const obj = results[rule] as any;
 
 				if (Array.isArray(obj)) {
@@ -60,8 +66,12 @@ export default class ModClean_Utils {
 				}
 
 				if (typeof obj === 'object') {
-					if (obj.hasOwnProperty('patterns')) patterns = patterns.concat(obj.patterns);
-					if (obj.hasOwnProperty('ignore')) ignore = ignore.concat(obj.ignore);
+					if (obj.patterns) {
+						patterns = patterns.concat(obj.patterns);
+					}
+					if (obj.ignore) {
+						ignore = ignore.concat(obj.ignore);
+					}
 				}
 			}
 		}
@@ -69,13 +79,19 @@ export default class ModClean_Utils {
 		const addlPats = opts.additionalPatterns;
 		const addlIgnore = opts.ignorePatterns;
 
-		if (Array.isArray(addlPats) && addlPats.length) patterns = patterns.concat(addlPats);
-		if (Array.isArray(addlIgnore) && addlIgnore.length) ignore = ignore.concat(addlIgnore);
+		if (Array.isArray(addlPats) && addlPats.length) {
+			patterns = patterns.concat(addlPats);
+		}
+		if (Array.isArray(addlIgnore) && addlIgnore.length) {
+			ignore = ignore.concat(addlIgnore);
+		}
 
 		patterns = uniq(patterns);
 		ignore = uniq(ignore);
 
-		if (!patterns.length) throw new Error('No patterns have been loaded, nothing to check against');
+		if (!patterns.length) {
+			throw new Error('No patterns have been loaded, nothing to check against');
+		}
 
 		const result: Patterns = {
 			allow: patterns,
@@ -91,15 +107,21 @@ export default class ModClean_Utils {
 	 */
 	_loadPatterns(module: string): { module: string, patterns: Record<string, unknown> } {
 		let patterns;
+		if (module.includes('/')) {
+			const ext = path.extname(module);
+			if (!path.isAbsolute(module)) {
+				module = path.resolve(process.cwd(), module);
+			}
 
-		if (module.indexOf('/') !== -1) {
-			let ext = path.extname(module);
-			if (!path.isAbsolute(module)) module = path.resolve(process.cwd(), module);
-
-			if (ext === '.js' || ext === '.json') patterns = require(module);
-			else throw new Error(`Invalid pattern module "${module}" provided`);
+			if (ext === '.js' || ext === '.json') {
+				patterns = require(module);
+			} else {
+				throw new Error(`Invalid pattern module "${module}" provided`);
+			}
 		} else {
-			if (module.match(/modclean\-patterns\-/) === null) module = 'modclean-patterns-' + module;
+			if (module.match(/modclean-patterns-/) === null) {
+				module = 'modclean-patterns-' + module;
+			}
 
 			try {
 				patterns = require(module);
@@ -108,12 +130,13 @@ export default class ModClean_Utils {
 			}
 		}
 
-		if (patterns === null || typeof patterns !== 'object')
+		if (patterns === null || typeof patterns !== 'object') {
 			throw new Error(`Patterns "${module}" did not return an object`);
+		}
 
 		return {
 			module,
-			patterns
+			patterns,
 		};
 	}
 
@@ -126,14 +149,17 @@ export default class ModClean_Utils {
 	 * @return {Object}        The compiled error object
 	 */
 	error(err: any, method: any, obj = {}, event = 'error' as any) {
-		let errObj = Object.assign({
+		const errObj = Object.assign({
 			error: err,
-			method: method
+			method: method,
 		}, obj || {});
 
 		this._inst.errors.push(errObj);
-		if (event !== false) this._inst.emit(event, errObj);
+		if (event !== false) {
+			this._inst.emit(event, errObj);
+		}
 
 		return errObj;
 	}
+
 }

@@ -7,9 +7,17 @@ module.exports = {
 	},
 	overrides: [
 		{
-			files: ['*.ts'],
+			files: ['*.ts', '*.js'],
 			rules: {
 				'no-console': ['off'],
+				'no-sync': ['off'],
+				'max-lines-per-function': ['off'],
+				'@typescript-eslint/no-unsafe-member-access': ['off'],
+				'@typescript-eslint/no-unsafe-call': ['off'],
+				'@typescript-eslint/no-explicit-any': ['off'],
+				'@typescript-eslint/explicit-module-boundary-types': ['off'],
+				'@typescript-eslint/explicit-function-return-type': ['off'],
+				'@typescript-eslint/no-unsafe-argument': ['off'],
 			},
 		},
 	],

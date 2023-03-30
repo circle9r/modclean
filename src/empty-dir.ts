@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 
-const emptyDir = async (dir: string, filter: Function): Promise<boolean> => {
+const emptyDir = async (dir: string, filter: (arg: string) => boolean): Promise<boolean> => {
 	if (!Array.isArray(dir) && typeof dir !== 'string') {
 		throw new TypeError('expected a directory or array of files');
 	}
@@ -17,11 +17,11 @@ const emptyDir = async (dir: string, filter: Function): Promise<boolean> => {
 	const files: string[] = await fs.readdir(dir);
 
 	return isEmpty(files, filter);
-}
+};
 
 export default emptyDir;
 
-async function isEmpty(files: string[], filter: Function): Promise<boolean> {
+function isEmpty(files: string[], filter: (arg: string) => boolean): boolean {
 	if (files.length === 0) {
 		return true;
 	}
@@ -31,7 +31,7 @@ async function isEmpty(files: string[], filter: Function): Promise<boolean> {
 	}
 
 	for (const file of files) {
-		if (filter(file) === false) {
+		if (!filter(file)) {
 			return false;
 		}
 	}

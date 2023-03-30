@@ -29,6 +29,6 @@ const subdirs = async (root: string, maxDepth: number = Infinity): Promise<strin
 	await enqueue(path.normalize(root), -1);
 
 	return subs;
-}
+};
 
 export default subdirs;

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-"use strict";
+'use strict';
 
 const chalk = require('chalk');
 const program = require('commander');
@@ -19,7 +19,7 @@ function list(val) {
 	return val.split(',');
 }
 
-process.on('SIGINT', function () {
+process.on('SIGINT', function() {
 	process.stdin.destroy();
 	process.exit();
 });
@@ -49,32 +49,33 @@ program
 const argOptions = program.opts();
 
 class ModClean_CLI {
+
 	constructor() {
 		this.log = utils.initLog(argOptions.verbose);
 
 		// Display CLI header
 		console.log(
-			"\n" +
+			'\n' +
 			chalk.yellow.bold('MODCLEAN ') +
-			chalk.gray(' Version ' + pkg.version) + "\n"
+			chalk.gray(' Version ' + pkg.version) + '\n',
 		);
 
 		// Display "running in test mode" message
 		if (argOptions.test) {
 			console.log(
-				chalk.cyan.bold('RUNNING IN TEST MODE') + "\n" +
-				chalk.gray('When running in test mode, files will not be deleted from the file system.') + "\n"
+				chalk.cyan.bold('RUNNING IN TEST MODE') + '\n' +
+				chalk.gray('When running in test mode, files will not be deleted from the file system.') + '\n',
 			);
 		}
 
 		// Display warning message and confirmation prompt
 		if (!argOptions.run && !argOptions.test) {
 			console.log(
-				chalk.red.bold('WARNING:') + "\n" +
-				chalk.gray(utils.warningMsg) + "\n"
+				chalk.red.bold('WARNING:') + '\n' +
+				chalk.gray(utils.warningMsg) + '\n',
 			);
 
-			return utils.confirm('Are you sure you want to continue?', (res) => {
+			return utils.confirm('Are you sure you want to continue?', res => {
 				if (!res) return process.exit(0);
 				this.start();
 			});
@@ -92,7 +93,7 @@ class ModClean_CLI {
 			total: 0,
 			skipped: [],
 			currentEmpty: 0,
-			totalEmpty: 0
+			totalEmpty: 0,
 		};
 
 		// Disable progress bar in interactive mode
@@ -105,29 +106,28 @@ class ModClean_CLI {
 			additionalPatterns: argOptions.additionalPatterns || [],
 			ignorePatterns: argOptions.ignore || [],
 			noDirs: !argOptions.dirs,
-			dotFiles: !!argOptions.dotfiles,
-			errorHalt: !!argOptions.errorHalt,
+			dotFiles: Boolean(argOptions.dotfiles),
+			errorHalt: Boolean(argOptions.errorHalt),
 			removeEmptyDirs: !argOptions.keepEmpty,
 			ignoreCase: !argOptions.caseSensitive,
-			test: !!argOptions.test,
-			followSymlink: !!argOptions.followSymlink,
-			process: async (file) => {
+			test: Boolean(argOptions.test),
+			followSymlink: Boolean(argOptions.followSymlink),
+			process: async file => {
 				self.stats.current += 1;
 				if (!argOptions.interactive) return true;
 				return new Promise(resolve => {
-
 					let name = path.relative(options.cwd, file);
 					if (platform === 'win32') name = name.replace(/\\+/g, '/');
 
 					utils.confirm(
 						chalk.gray(`(${self.stats.current}/${self.stats.total})`) +
 						`${name} ${chalk.gray(' - ')} ${chalk.yellow.bold('Delete File?')}`,
-						function (res) {
+						function(res) {
 							if (!res) self.stats.skipped.push(file);
 							resolve(res);
 						});
 				});
-			}
+			},
 		};
 
 		this.modclean = new ModClean(options);
@@ -137,7 +137,7 @@ class ModClean_CLI {
 	}
 
 	initEvents() {
-		var inst = this.modclean;
+		let inst = this.modclean;
 
 		let progressBar = new clui.Progress(40),
 			spinner = new clui.Spinner('Loading...'),
@@ -171,7 +171,7 @@ class ModClean_CLI {
 		});
 
 		// Files Event (file list after searching complete)
-		inst.on('files', (files) => {
+		inst.on('files', files => {
 			this.log('event', 'files');
 			if (process.stdout.isTTY) spinner.stop();
 
@@ -180,22 +180,21 @@ class ModClean_CLI {
 			console.log(`Found ${chalk.green.bold(files.length)} files/folders to remove\n`);
 		});
 
-		inst.on('process', (files) => {
+		inst.on('process', files => {
 			this.log('event', 'process');
 
-			if (!showProgress && !argOptions.interactive && !argOptions.verbose)
-				console.log('Deleting files, please wait...');
+			if (!showProgress && !argOptions.interactive && !argOptions.verbose) console.log('Deleting files, please wait...');
 
 			updateProgress(0, files.length);
 		});
 
 		// Deleted Event (called for each file deleted)
-		inst.on('deleted', (file) => {
+		inst.on('deleted', file => {
 			updateProgress(this.stats.current, this.stats.total);
 
 			this.log(
 				'verbose',
-				`${chalk.yellow.bold('DELETED')} (${this.stats.current}/${this.stats.total}) ${chalk.gray(file)}`
+				`${chalk.yellow.bold('DELETED')} (${this.stats.current}/${this.stats.total}) ${chalk.gray(file)}`,
 			);
 		});
 
@@ -205,7 +204,7 @@ class ModClean_CLI {
 			showSpinner(`Searching for empty directories in ${inst.options.cwd}...`);
 		});
 
-		inst.on('emptyDirs', (dirs) => {
+		inst.on('emptyDirs', dirs => {
 			this.log('event', 'emptyDirs');
 
 			if (process.stdout.isTTY) spinner.stop();
@@ -215,19 +214,18 @@ class ModClean_CLI {
 
 			if (!dirs.length) return;
 
-			if (!showProgress && !argOptions.interactive && !argOptions.verbose)
-				console.log('Deleting empty directories, please wait...');
+			if (!showProgress && !argOptions.interactive && !argOptions.verbose) console.log('Deleting empty directories, please wait...');
 
 			updateProgress(0, dirs.length);
 		});
 
-		inst.on('deletedEmptyDir', (dir) => {
+		inst.on('deletedEmptyDir', dir => {
 			this.stats.currentEmpty += 1;
 			updateProgress(this.stats.currentEmpty, this.stats.totalEmpty);
 
 			this.log(
 				'verbose',
-				`${chalk.yellow.bold('DELETED EMPTY DIR')} (${this.stats.currentEmpty}/${this.stats.totalEmpty}) ${chalk.gray(dir)}`
+				`${chalk.yellow.bold('DELETED EMPTY DIR')} (${this.stats.currentEmpty}/${this.stats.totalEmpty}) ${chalk.gray(dir)}`,
 			);
 		});
 
@@ -237,25 +235,25 @@ class ModClean_CLI {
 		});
 
 		// Error Event (called as soon as an error is encountered)
-		inst.on('error', (err) => {
+		inst.on('error', err => {
 			this.log('event', 'error');
 			this.log('error', err.error);
 		});
 
 		// FileError Event (called when there was an error deleting a file)
-		inst.on('fileError', (err) => {
+		inst.on('fileError', err => {
 			this.log('event', 'fileError');
 			this.log('error', `${chalk.red.bold('FILE ERROR:')} ${err.error}\n${chalk.gray(err.file)}`);
 		});
 
 		// Finish Event (once processing/deleting all files is complete)
-		inst.on('finish', (results) => {
+		inst.on('finish', results => {
 			if (showProgress) process.stdout.write('\n');
 			this.log('event', 'finish');
 
 			this.log(
 				'verbose',
-				`${chalk.green('FINISH')} Deleted ${chalk.yellow.bold(results.length)} files/folders of ${chalk.yellow.bold(this.stats.total)}`
+				`${chalk.green('FINISH')} Deleted ${chalk.yellow.bold(results.length)} files/folders of ${chalk.yellow.bold(this.stats.total)}`,
 			);
 		});
 
@@ -267,10 +265,10 @@ class ModClean_CLI {
 
 	done(err, results) {
 		console.log(
-			"\n" + chalk.green.bold('FILES/FOLDERS DELETED') + "\n" +
+			'\n' + chalk.green.bold('FILES/FOLDERS DELETED') + '\n' +
 			`    ${chalk.yellow.bold('Total:   ')} ${results.length}\n` +
 			`    ${chalk.yellow.bold('Skipped: ')} ${this.stats.skipped.length}\n` +
-			`    ${chalk.yellow.bold('Empty:   ')} ${this.stats.totalEmpty}\n`
+			`    ${chalk.yellow.bold('Empty:   ')} ${this.stats.totalEmpty}\n`,
 		);
 
 		setTimeout(() => {
@@ -284,6 +282,8 @@ class ModClean_CLI {
 			process.exit(0);
 		}, 500);
 	}
+
 }
 
+// eslint-disable-next-line no-new
 new ModClean_CLI();

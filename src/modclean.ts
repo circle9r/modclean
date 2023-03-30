@@ -7,7 +7,7 @@ import emptyDir from './empty-dir';
 import subdirs from './subdirs';
 import Utils, { Patterns } from './utils';
 
-let defaults = {
+const defaults = {
 	/**
 	 * The directory to search in, default is `process.cwd()`
 	 * @type {String}
@@ -65,8 +65,10 @@ let defaults = {
 	 * @param  {String}  file File name to filter against
 	 * @return {Boolean}      `true` if is a valid file, `false` if invalid file
 	 */
-	emptyDirFilter: function (file: string): boolean {
-		if (/Thumbs\.db$/i.test(file) || /\.DS_Store$/i.test(file)) return true;
+	emptyDirFilter: function(file: string): boolean {
+		if (/Thumbs\.db$/i.test(file) || /\.DS_Store$/i.test(file)) {
+			return true;
+		}
 
 		return false;
 	},
@@ -84,7 +86,7 @@ let defaults = {
 	 * Force deletion to be done also in symlinked packages (when using npm link) (default `false`)
 	 * @type {Boolean}
 	 */
-	followSymlink: false
+	followSymlink: false,
 };
 
 /**
@@ -115,7 +117,6 @@ export class ModClean extends EventEmitter {
 		if (this.options.modulesDir !== false && path.basename(this.options.cwd) !== this.options.modulesDir) {
 			this.options.cwd = path.join(this.options.cwd, this.options.modulesDir);
 		}
-
 	}
 
 	/**
@@ -133,7 +134,7 @@ export class ModClean extends EventEmitter {
 
 			if (opts.removeEmptyDirs) {
 				await this.cleanEmptyDirs();
-			};
+			}
 		} catch (error) {
 			// ignore
 		}
@@ -152,7 +153,7 @@ export class ModClean extends EventEmitter {
 			dot: opts.dotFiles,
 			nocase: opts.ignoreCase,
 			ignore: this._patterns.ignore,
-			nodir: opts.noDirs
+			nodir: opts.noDirs,
 		};
 
 		this.emit('beforeFind', this._patterns.allow, globOpts);
@@ -174,15 +175,19 @@ export class ModClean extends EventEmitter {
 	 */
 	async _process(files: string[]): Promise<string[]> {
 		const opts = this.options;
-		const processFn = typeof opts.process === 'function' ? opts.process : function () { return true; };
+		const processFn = typeof opts.process === 'function' ? opts.process : function() {
+			return true;
+		};
 		const results: string[] = [];
 
-		if (!files.length) return [];
+		if (!files.length) {
+			return [];
+		}
 
 		this.emit('process', files);
 
 		for (const file of files) {
-			let next = async () => {
+			const processFile = async () => {
 				const shouldProcess = await processFn(file);
 				if (shouldProcess !== false) {
 					try {
@@ -195,7 +200,7 @@ export class ModClean extends EventEmitter {
 			};
 
 			if (opts.followSymlink) {
-				await next();
+				await processFile();
 			} else {
 				let shouldNext = false;
 				try {
@@ -207,7 +212,7 @@ export class ModClean extends EventEmitter {
 					shouldNext = true;
 				}
 				if (shouldNext) {
-					await next();
+					await processFile();
 				}
 			}
 		}
@@ -242,12 +247,13 @@ export class ModClean extends EventEmitter {
 	 * Finds and removes all empty directories.
 	 */
 	async cleanEmptyDirs(): Promise<string[]> {
-		let self = this;
-		let opts = this.options;
-		let results: any[] = [];
+		const opts = this.options;
+		const results: any[] = [];
 
 		// If test mode is enabled or removeEmptyDirs is disabled, just return.
-		if (opts.test || !opts.removeEmptyDirs) return [];
+		if (opts.test || !opts.removeEmptyDirs) {
+			return [];
+		}
 
 		this.emit('beforeEmptyDirs');
 
@@ -255,7 +261,7 @@ export class ModClean extends EventEmitter {
 
 		await this._removeEmptyDirs(dirs);
 
-		self.emit('afterEmptyDirs', results);
+		this.emit('afterEmptyDirs', results);
 
 		return dirs;
 	}
@@ -265,15 +271,19 @@ export class ModClean extends EventEmitter {
 	 * @private
 	 */
 	async _findEmptyDirs(): Promise<string[]> {
-		const results: any[] = [];
+		const results: string[] = [];
 
 		try {
 			const dirs = await subdirs(this.options.cwd);
-			if (!Array.isArray(dirs)) throw new Error('Dir not array');
+			if (!Array.isArray(dirs)) {
+				throw new Error('Dir not array');
+			}
 
 			for (const dir of dirs) {
 				try {
-					const isEmpty = await emptyDir(dir, this.options.emptyDirFilter || function () { return false; });
+					const isEmpty = await emptyDir(dir, this.options.emptyDirFilter || function() {
+						return false;
+					});
 					if (!isEmpty) {
 						continue;
 					}
@@ -308,6 +318,7 @@ export class ModClean extends EventEmitter {
 			}
 		}
 	}
+
 }
 
 // export modclean
