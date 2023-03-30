@@ -31,7 +31,7 @@
 		"async-each-series": "^1.1.0",
 		"chalk": "~4.1.2",
 		"clui": "^0.3.1",
-		"commander": "~9.4.1",
+		"commander": "~9.5.0",
 		"empty-dir": "~3.0.0",
 		"fs-extra": "~11.1.1",
 		"glob": "~9.3.2",
