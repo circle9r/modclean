@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
 import fs from 'fs-extra';
-import glob from 'glob';
+import { glob } from 'glob';
 import path from 'path';
-import rimraf from 'rimraf';
+import { rimraf } from 'rimraf';
 import emptyDir from './empty-dir';
 import subdirs from './subdirs';
 import Utils, { Patterns } from './utils';
