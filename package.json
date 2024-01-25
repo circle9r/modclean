@@ -1,6 +1,6 @@
 {
 	"name": "@circle9r/modclean",
-	"version": "3.1.0",
+	"version": "3.2.0",
 	"description": "Remove unwanted files and directories from your node_modules folder",
 	"main": "index.js",
 	"bin": {
